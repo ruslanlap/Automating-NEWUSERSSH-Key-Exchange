@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+# ANSI color codes
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+RESET=$(tput sgr0)
+
+printf "${GREEN}🌟 Starting user setup...${RESET}\n"
+
+read -p "${YELLOW}🔑 Enter login: ${RESET}" login
+read -p "${YELLOW}🔒 Enter password: ${RESET}" -s password
+read -p "${YELLOW}🔑 Enter path of SSH public key: ${RESET}" -e ssh_pub_path
+
+printf "${GREEN}🚀 Creating user directories and setting up SSH...${RESET}\n"
+
+homedir="/home/$login"
+ssh_dir="$homedir/.ssh"
+
+sudo mkdir -p "$ssh_dir"
+sudo cat "$ssh_pub_path" >> "$ssh_dir/authorized_keys"
+sudo cp -rT /etc/skel "$homedir"
+sudo useradd -d "$homedir" -s /bin/bash "$login"
+sudo chown -R "$login:$login" "$homedir"
+echo "$login:$password" | sudo chpasswd
+
+printf "${GREEN}✅ User setup completed successfully!${RESET}\n"
+
+# Check if user is successfully added
+grep "$login" /etc/passwd
+
+printf "${GREEN}🎉 Enjoy your new user account!${RESET}\n"
+
