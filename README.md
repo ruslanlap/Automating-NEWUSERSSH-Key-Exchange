@@ -1,4 +1,4 @@
-#  User Setup Script ✨
+#  User Setup Script and connect with ssh✨
 
 [What it does ]
 
