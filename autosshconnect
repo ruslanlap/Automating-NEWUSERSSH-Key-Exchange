@@ -32,47 +32,29 @@ echo -ne "\r${GREEN} 🟢 Starting user setup...${RESET}"
 sleep 1
 echo -e "\r${GREEN} ✅ Starting user setup...${RESET}"
 
-# Input validation
-while true; do
-    echo -n "${YELLOW} ⚠️ Enter login (lowercase letters and numbers only): ${RESET}"
-    read login
-    if [[ $login =~ ^[a-z0-9]+$ ]]; then
-        break
-    else
-        echo "${YELLOW}❌ Invalid login. Please use only lowercase letters and numbers.${RESET}"
-    fi
-done
 
-echo -n "${YELLOW} 🔑 Enter password: ${RESET}"
-read -s password
-echo
+printf "${GREEN}🌟 Starting user setup...${RESET}\n"
 
-echo -n "${YELLOW} 🗝️ Enter path of SSH public key: ${RESET}"
-read ssh_pub_path
+read -p "${YELLOW}🔑 Enter login: ${RESET}" login
+read -p "${YELLOW}🔒 Enter password: ${RESET}" -s password
+read -p "${YELLOW}🔑 Enter path of SSH public key: ${RESET}" -e ssh_pub_path
 
-echo "${GREEN}️ ⚙️ Creating user directories and setting up SSH...${RESET}"
+printf "${GREEN}🚀 Creating user directories and setting up SSH...${RESET}\n"
 
-homedir="/home/$login"     # 🏠
-ssh_dir="$homedir/.ssh"    # 🔒
+homedir="/home/$login"
+ssh_dir="$homedir/.ssh"
 
-# Create directories and set permissions securely
 sudo mkdir -p "$ssh_dir"
-sudo chmod 700 "$ssh_dir"  # 🔐 Restrict access to owner only
 sudo cat "$ssh_pub_path" >> "$ssh_dir/authorized_keys"
-sudo chmod 600 "$ssh_dir/authorized_keys"  # 🔐 Restrict access to owner only
+sudo cp -rT /etc/skel "$homedir"
+sudo useradd -d "$homedir" -s /bin/bash "$login"
+sudo chown -R "$login:$login" "$homedir"
+echo "$login:$password" | sudo chpasswd
 
-# Create user with appropriate settings
-sudo useradd -m -d "$homedir" -s /bin/bash -U "$login" &
-
-# Set password securely
-echo "$login:$password" | sudo chpasswd &
-
-# Display loading animation
-loading_animation
-
-printf "\n${GREEN}✅ User setup completed successfully!${RESET}\n"
+printf "${GREEN}✅ User setup completed successfully!${RESET}\n"
 
 # Check if user is successfully added
 grep "$login" /etc/passwd
 
-echo "${GREEN} 🔧 Enjoy your new user account!${RESET}"
+printf "${GREEN}🎉 Enjoy your new user account!${RESET}\n"
+
