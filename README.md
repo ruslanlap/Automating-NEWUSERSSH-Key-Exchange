@@ -1,29 +1,35 @@
-# Automating-SSH-Key-Generation-and-Exchange
+# User Setup Script with SSH
 
-                                                                                                                                                                                
-                                                                                                                                                                                
-Here is a description of the repository's purpose in English:
+This is a bash script that automates the setup of a user account on a Linux system. It prompts the user for login credentials, the path to an SSH public key, and then creates the necessary directories, sets up SSH, and adds the user to the system.
 
-# Automating SSH Key Generation and Exchange
+## Usage
 
-This repository contains a Bash script that automates the process of generating SSH keys and copying the public key to a remote server to enable passwordless SSH logins using key-based authentication.
+To use this script, follow these steps:
 
-The script does the following:
+1. Open a terminal.
+2. Copy the script into a file named `user_setup.sh`.
+3. Make the script executable by running the command `chmod +x user_setup.sh`.
+4. Run the script using the command `./user_setup.sh`.
 
-1. Generates a new SSH key pair (public and private keys) using the rsa algorithm. The keys are stored as id_rsa and id_rsa.pub in the ~/.ssh directory.
+## Script Explanation
 
-2. Reads the content of the generated public key (id_rsa.pub).
+The script starts by defining ANSI color codes and emojis for better readability. It then defines a function `loading_animation()` that displays a loading animation while the script is running.
 
-3. Connects via SSH to the remote server using username and IP address provided.
+The script uses `echo` statements to display messages to the user, such as "Starting user setup..." and "User setup completed successfully!". It also uses `sleep` to introduce delays between messages.
 
-4. Creates the .ssh directory on the remote server if it doesn't exist.
+The script prompts the user for their login, password, and the path to their SSH public key using the `read` command. The `-p` option is used to display a prompt, and the `-s` option is used to hide the password input.
 
-5. Appends the public key data to the authorized_keys file on the remote server. This allows the user to authenticate using the private key.
+After obtaining the necessary information, the script creates the user's home directory and the `.ssh` directory. It appends the contents of the SSH public key file to the `authorized_keys` file in the `.ssh` directory. It then copies the contents of the `/etc/skel` directory to the user's home directory, creates the user account using `useradd`, sets the ownership of the home directory to the new user, and sets the user's password using `chpasswd`.
 
-6. Sets appropriate permissions on remote .ssh directory and authorized_keys file.
+Finally, the script checks if the user was successfully added by searching for the user's login in the `/etc/passwd` file. It displays a message indicating the completion of the user setup.
 
-7. Tests the SSH connection to confirm passwordless login works correctly using the newly exchanged keys.
+## Running the Script
 
-The script automates what would otherwise be a manual multi-step process, allowing easy setup of SSH public key authentication. This improves security as passwords are not required to login once keys are set up.
+To run the script, follow these steps:
 
-It can be customized with different usernames, servers etc and incorporated into provisioning/configuration scripts to auto-deploy keys to multiple servers.
+1. Open a terminal.
+2. Navigate to the directory where the script is located.
+3. Make the script executable by running the command `chmod +x autosshconnect.sh`.
+4. Run the script using the command `./autosshconnect.sh`.
+
+Please note that this script requires administrative privileges to create the user account and modify system files.
