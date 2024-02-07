@@ -1,34 +1,78 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-# ANSI color codes
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-RESET=$(tput sgr0)
+# ANSI color codes and emoji for readability
+GREEN=$(tput setaf 2)   # 🟢
+YELLOW=$(tput setaf 3)  # 🟡
+RESET=$(tput sgr0)      # 🔄
 
-printf "${GREEN}🌟 Starting user setup...${RESET}\n"
+# Function to display loading animation
+function loading_animation() {
+    local pid=$!
+    local delay=0.15
+    local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
 
-read -p "${YELLOW}🔑 Enter login: ${RESET}" login
-read -p "${YELLOW}🔒 Enter password: ${RESET}" -s password
-read -p "${YELLOW}🔑 Enter path of SSH public key: ${RESET}" -e ssh_pub_path
+    while ps -p $pid >/dev/null; do
+        local temp=${spin#?}
+        printf " [%c] " "$spin"
+        local spin=$temp${spin%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
 
-printf "${GREEN}🚀 Creating user directories and setting up SSH...${RESET}\n"
+    printf "    \b\b\b\b"
+}
 
-homedir="/home/$login"
-ssh_dir="$homedir/.ssh"
+echo -n "${GREEN} 🟢 Starting user setup...${RESET}"
+sleep 1
+echo -ne "\r${GREEN} ✅ Starting user setup...${RESET}"
+sleep 1
+echo -ne "\r${GREEN} 🟢 Starting user setup...${RESET}"
+sleep 1
+echo -e "\r${GREEN} ✅ Starting user setup...${RESET}"
 
+# Input validation
+while true; do
+    echo -n "${YELLOW} ⚠️ Enter login (lowercase letters and numbers only): ${RESET}"
+    read login
+    if [[ $login =~ ^[a-z0-9]+$ ]]; then
+        break
+    else
+        echo "${YELLOW}❌ Invalid login. Please use only lowercase letters and numbers.${RESET}"
+    fi
+done
+
+echo -n "${YELLOW} 🔑 Enter password: ${RESET}"
+read -s password
+echo
+
+echo -n "${YELLOW} 🗝️ Enter path of SSH public key: ${RESET}"
+read ssh_pub_path
+
+echo "${GREEN}️ ⚙️ Creating user directories and setting up SSH...${RESET}"
+
+homedir="/home/$login"     # 🏠
+ssh_dir="$homedir/.ssh"    # 🔒
+
+# Create directories and set permissions securely
 sudo mkdir -p "$ssh_dir"
+sudo chmod 700 "$ssh_dir"  # 🔐 Restrict access to owner only
 sudo cat "$ssh_pub_path" >> "$ssh_dir/authorized_keys"
-sudo cp -rT /etc/skel "$homedir"
-sudo useradd -d "$homedir" -s /bin/bash "$login"
-sudo chown -R "$login:$login" "$homedir"
-echo "$login:$password" | sudo chpasswd
+sudo chmod 600 "$ssh_dir/authorized_keys"  # 🔐 Restrict access to owner only
 
-printf "${GREEN}✅ User setup completed successfully!${RESET}\n"
+# Create user with appropriate settings
+sudo useradd -m -d "$homedir" -s /bin/bash -U "$login" &
+
+# Set password securely
+echo "$login:$password" | sudo chpasswd &
+
+# Display loading animation
+loading_animation
+
+printf "\n${GREEN}✅ User setup completed successfully!${RESET}\n"
 
 # Check if user is successfully added
 grep "$login" /etc/passwd
 
-printf "${GREEN}🎉 Enjoy your new user account!${RESET}\n"
-
+echo "${GREEN} 🔧 Enjoy your new user account!${RESET}"
