@@ -2,11 +2,41 @@
  
 set -e 
  
-# ANSI color codes 
-GREEN=$(tput setaf 2) 
-YELLOW=$(tput setaf 3) 
-RESET=$(tput sgr0) 
- 
+
+
+# ANSI color codes and emoji for readability
+GREEN=$(tput setaf 2)   # 🟢
+YELLOW=$(tput setaf 3)  # 🟡
+RESET=$(tput sgr0)      # 🔄
+
+# Function to display loading animation
+function loading_animation() {
+    local pid=$!
+    local delay=0.15
+    local spin='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+
+    while ps -p $pid >/dev/null; do
+        local temp=${spin#?}
+        printf " [%c] " "$spin"
+        local spin=$temp${spin%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+
+    printf "    \b\b\b\b"
+}
+
+echo -n "${GREEN} 🟢 Starting user setup...${RESET}"
+sleep 1
+echo -ne "\r${GREEN} ✅ Starting user setup...${RESET}"
+sleep 1
+echo -ne "\r${GREEN} 🟢 Starting user setup...${RESET}"
+sleep 1
+echo -e "\r${GREEN} ✅ Starting user setup...${RESET}":
+
+
+
+
 printf "${GREEN}🌟 Starting user setup...${RESET}\n" 
  
 read -p "${YELLOW}🔑 Enter login: ${RESET}" login 
