@@ -1,6 +1,4 @@
-Your guide looks comprehensive and well-organized! Here's a refined version with some minor tweaks and enhancements for clarity:
-
----
+#Automating-NEWUSERSSH-Key-Exchange
 
 **User Setup Script and SSH Connection Guide** ✨
 
